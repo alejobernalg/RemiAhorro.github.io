@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RemiAhorro — Mi Perfil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ======= NUEVO ESTILO PERFIL ======= */
+    .profile-wrap {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    @media(max-width:1000px){ .profile-wrap{grid-template-columns:1fr} }
+
+    .profile-card {
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      background: linear-gradient(135deg,#e8f7ef,#fff);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    }
+    .avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: #dff2e7;
+      display:grid;place-items:center;
+      font-size:42px;
+      color:#15563e;
+      margin:auto;
+    }
+    .profile-card h2 {margin:10px 0 4px;color:#133d2c}
+    .profile-card p {margin:0;color:#4a6b5d}
+    .pill-row{display:flex;justify-content:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+    .btn.icon{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;font-weight:700;border-radius:14px;}
+    .btn.primary{background:#1fb06a;color:white;border:none;}
+    .btn.secondary{background:#eef7f1;border:1px solid #cde7d9;color:#1b5b40;}
+    .btn.ghost{background:transparent;border:1px solid var(--ring);color:#1b5b40;}
+
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+    @media(max-width:900px){.stats{grid-template-columns:1fr}}
+    .stat-card{border:1px solid var(--ring);border-radius:16px;padding:14px;text-align:center;background:#fff}
+    .stat-card h4{margin:0;color:#15563e}
+    .stat-card .money{font-size:22px;margin-top:6px;color:#133c29;font-weight:800}
+
+    /* Modal */
+    dialog.modal{
+      border:0;border-radius:20px;padding:0;max-width:min(420px,92vw);
+      box-shadow:0 4px 18px rgba(0,0,0,.15);
+      overflow:hidden;
+    }
+    .modal-head{padding:16px;background:#eaf7f0;font-weight:800;color:#144631;border-bottom:1px solid #cde7d9}
+    .modal-body{padding:18px}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 18px}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><div class="brand-badge"></div><div><h1>RemiAhorro</h1><div style="font-size:12px;color:#5a8d75">Tu perfil y operaciones</div></div></div>
+      <nav class="nav">
+        <a href="index.html">Inicio</a>
+        <a href="metas.html">Metas</a>
+        <a href="educacion.html">Educación</a>
+        <a href="perfil.html" class="active">Mi perfil</a>
+        <a href="#" id="navLogout" class="logout">Salir</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="profile-wrap">
+      <!-- Perfil -->
+      <div class="profile-card" id="profileCard">
+        <div class="avatar" id="avatar">👤</div>
+        <h2 id="pName">Usuario</h2>
+        <p id="pProfile">Perfil Equilibrado</p>
+        <div class="pill-row">
+          <span class="pill">Verificado</span>
+          <span class="pill" style="background:#d7f7e5;border:1px solid #ace9c6;">Nivel Intermedio</span>
+        </div>
+        <div class="action-grid">
+          <button class="btn primary icon" id="btnSaldo">💰 Ver Saldo</button>
+          <button class="btn secondary icon" id="btnEnviar">📤 Enviar</button>
+          <button class="btn primary icon" id="btnRecargar">🔄 Recargar</button>
+          <button class="btn ghost icon" id="btnEditar">⚙️ Editar</button>
+        </div>
+      </div>
+
+      <!-- Panel Administrativo -->
+      <div>
+        <h2 class="section-title">Panel Personal</h2>
+        <div class="stats">
+          <div class="stat-card"><h4>Saldo total</h4><div class="money" id="statSaldo">$0</div><div class="muted">Disponible</div></div>
+          <div class="stat-card"><h4>Promedio Ahorro</h4><div class="money" id="statAhorro">—%</div><div class="muted">vs perfil base</div></div>
+          <div class="stat-card"><h4>Última remesa</h4><div class="money" id="statRemesa">$0</div><div class="muted">Reciente</div></div>
+        </div>
+
+        <h2 class="section-title" style="margin-top:20px">Historial de movimientos</h2>
+        <div id="historial" class="card">
+          <div class="muted">Aún no hay movimientos registrados.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SALDO -->
+  <dialog id="modalSaldo" class="modal">
+    <div class="modal-head">Saldo actual</div>
+    <div class="modal-body">
+      <div style="font-size:36px;font-weight:800;color:#15563e" id="saldoValor">$0</div>
+      <div class="muted">Incluye ahorro y consumo disponible.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="closeSaldo">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- MODAL ENVÍO -->
+  <dialog id="modalEnviar" class="modal">
+    <div class="modal-head">Enviar dinero</div>
+    <div class="modal-body">
+      <label>Destinatario</label>
+      <input id="destinatario" type="text" placeholder="Ej. María Pérez" style="width:100%;margin-bottom:8px">
+      <label>Monto (COP)</label>
+      <input id="montoEnviar" type="number" placeholder="Ej. 100000" style="width:100%">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelEnviar">Cancelar</button>
+      <button class="btn primary" id="confirmEnviar">Enviar</button>
+    </div>
+  </dialog>
+
+  <script type="module">
+    import {requireAuth, PROFILES} from './app.js';
+    const user = requireAuth("perfil");
+    const fmt = n => "$" + Number(n||0).toLocaleString("es-CO",{maximumFractionDigits:0});
+
+    if(user){
+      const p = PROFILES[user.profile] || PROFILES.equilibrado;
+      const monto = Number(user.amount||0);
+
+      document.getElementById('pName').textContent = user.name;
+      document.getElementById('pProfile').textContent = p.name;
+      document.getElementById('statSaldo').textContent = fmt(monto);
+      document.getElementById('statAhorro').textContent = p.dist.a + "%";
+      document.getElementById('statRemesa').textContent = fmt(monto);
+
+      // Avatar con inicial
+      const initial = user.name?.charAt(0)?.toUpperCase() || "👤";
+      document.getElementById('avatar').textContent = initial;
+    }
+
+    // ==== MODALES ====
+    const modalSaldo = document.getElementById('modalSaldo');
+    const modalEnviar = document.getElementById('modalEnviar');
+    const saldoValor = document.getElementById('saldoValor');
+    const historial = document.getElementById('historial');
+
+    // Ver saldo
+    document.getElementById('btnSaldo').onclick = ()=>{
+      saldoValor.textContent = document.getElementById('statSaldo').textContent;
+      modalSaldo.showModal();
+    };
+    document.getElementById('closeSaldo').onclick = ()=> modalSaldo.close();
+
+    // Enviar dinero
+    document.getElementById('btnEnviar').onclick = ()=> modalEnviar.showModal();
+    document.getElementById('cancelEnviar').onclick = ()=> modalEnviar.close();
+
+    document.getElementById('confirmEnviar').onclick = ()=>{
+      const dest = document.getElementById('destinatario').value.trim();
+      const monto = Number(document.getElementById('montoEnviar').value);
+      if(!dest || monto<=0) return alert("Completa todos los campos.");
+      modalEnviar.close();
+
+      // Registrar en historial
+      const entry = document.createElement('div');
+      entry.innerHTML = `<b>📤 Envío a ${dest}</b> — ${fmt(monto)} <div class='muted-sm'>${new Date().toLocaleString('es-CO')}</div>`;
+      historial.prepend(entry);
+
+      alert(`✅ Enviado ${fmt(monto)} a ${dest}`);
+    };
+
+    // Recargar
+    document.getElementById('btnRecargar').onclick = ()=>{
+      const val = prompt("Monto a recargar (COP):", "100000");
+      if(!val) return;
+      const num = Number(val);
+      if(num>0){
+        user.amount = (user.amount||0) + num;
+        localStorage.setItem("remi_amount", String(user.amount));
+        document.getElementById('statSaldo').textContent = fmt(user.amount);
+        alert(`💸 Recargaste ${fmt(num)} correctamente`);
+      }
+    };
+
+    // Editar perfil
+    document.getElementById('btnEditar').onclick = ()=>{
+      const nuevo = prompt("Nuevo nombre:", user.name);
+      if(!nuevo) return;
+      user.name = nuevo.trim();
+      localStorage.setItem("remi_user", JSON.stringify(user));
+      document.getElementById('pName').textContent = user.name;
+      document.getElementById('avatar').textContent = user.name.charAt(0).toUpperCase();
+      alert("✅ Nombre actualizado");
+    };
+  </script>
+</body>
+</html>

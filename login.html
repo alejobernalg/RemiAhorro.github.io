@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RemiAhorro — Iniciar sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2 class="auth-title">Bienvenido a RemiAhorro</h2>
+      <p class="muted" style="margin:0 0 12px">Ingresa tus datos para empezar a ahorrar automático.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="name">Nombre</label>
+          <input id="name" type="text" placeholder="Tu nombre" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="amount">Monto mensual estimado (COP)</label>
+          <input id="amount" type="number" min="60000" step="1000" value="120000" required>
+          <small class="muted" id="amountPretty" style="margin-top:4px;display:block">Formateado: $120.000</small>
+        </div>
+
+        <div class="auth-actions">
+          <button id="go" class="btn primary" type="submit" style="width:100%">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getUser, saveUser } from './app.js';
+    const $   = id => document.getElementById(id);
+    const fmt = n => "$" + Number(n||0).toLocaleString("es-CO",{maximumFractionDigits:0});
+
+    const form   = $('loginForm');
+    const nameEl = $('name');
+    const amtEl  = $('amount');
+    const pretty = $('amountPretty');
+
+    function snap(v){ const n=Number(v)||0; return Math.max(60000, Math.round(n/1000)*1000); }
+    function updatePretty(){ const v=snap(amtEl.value); if(String(v)!==amtEl.value) amtEl.value=v; pretty.textContent="Formateado: "+fmt(v); }
+    amtEl.addEventListener('input', updatePretty);
+    updatePretty();
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const amount = snap(amtEl.value);
+      if(!amount || amount<60000){ alert("Monto mínimo 60.000 COP (múltiplos de 1.000)."); return; }
+
+      const u = getUser() || {};
+      u.name     = (nameEl.value||"").trim() || "Usuario";
+      u.amount   = amount;
+      u.loggedIn = true;
+
+      // Persistencias
+      saveUser(u);
+      localStorage.setItem("remi_amount", String(amount));
+      localStorage.setItem("remi_user", JSON.stringify(u));
+      localStorage.setItem("remi_reco_dismissed", "0");
+      localStorage.setItem("remi_session_id", String(Date.now()));
+
+      // Ir a elegir perfil
+      window.location.href = "elige-perfil.html";
+    });
+  </script>
+</body>
+</html>

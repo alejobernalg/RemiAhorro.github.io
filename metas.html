@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RemiAhorro — Metas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div><h1>RemiAhorro</h1><div style="font-size:12px;color:#5a8d75">Gestiona tus remesas</div></div>
+      </div>
+      <nav class="nav">
+        <a href="index.html" data-page="inicio">Inicio</a>
+        <a href="metas.html" data-page="metas" class="active">Metas</a>
+        <a href="educacion.html" data-page="educacion">Educación</a>
+        <a href="perfil.html" data-page="perfil">Mi perfil</a>
+        <a href="#" class="logout" id="navLogout">Salir</a>
+        <a href="#" id="navUser" style="pointer-events:none"></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="section-title">Metas de Ahorro</h2>
+
+    <!-- Header Metas -->
+    <div class="card metas-head">
+      <div class="metas-head-left">
+        <div class="metas-badge">🎯</div>
+        <div>
+          <div class="metas-title">Administra tus metas</div>
+          <div class="muted">Crea metas y mueve dinero desde tu ahorro disponible.</div>
+          <div class="muted" id="origenAhorro" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="metas-head-actions">
+        <div class="pill" id="pillSaldo">Saldo Ahorro: <b id="saldoLbl">$0</b></div>
+        <button class="btn primary" id="btnNuevaMeta">Crear nueva meta</button>
+      </div>
+    </div>
+
+    <!-- Grid de metas -->
+    <div id="goalsGrid" class="goal-grid"></div>
+
+    <div class="notif" style="margin-top:16px">
+      💡 Consejo: programa una transferencia automática hacia tus metas cuando llegue tu remesa.
+    </div>
+  </div>
+
+  <!-- MODAL: Crear/Editar meta -->
+  <dialog id="goalModal" class="modal">
+    <form id="goalForm" method="dialog">
+      <div class="modal-title" id="modalTitle">Nueva meta</div>
+      <div class="modal-body">
+        <label class="field">
+          <span>Nombre de la meta</span>
+          <input type="text" id="gName" required placeholder="Ej. Viaje a Medellín">
+        </label>
+        <label class="field">
+          <span>Objetivo (COP)</span>
+          <input type="number" id="gTarget" required min="10000" step="1000" placeholder="1000000">
+        </label>
+        <label class="field">
+          <span>Acumulado inicial (opcional)</span>
+          <input type="number" id="gSaved" min="0" step="1000" placeholder="0">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" value="cancel">Cancelar</button>
+        <button class="btn primary" id="btnGuardarMeta" value="default">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: Aportar a meta -->
+  <dialog id="moveModal" class="modal">
+    <form id="moveForm" method="dialog">
+      <div class="modal-title">Mover dinero a la meta</div>
+      <div class="modal-body">
+        <div class="muted" id="moveInfo">Desde ahorro disponible a: <b></b></div>
+        <label class="field">
+          <span>Monto (COP)</span>
+          <input type="number" id="mvAmount" min="1000" step="1000" required>
+        </label>
+        <div class="muted" id="mvHint"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" value="cancel">Cancelar</button>
+        <button class="btn primary" id="btnMover" value="default">Mover</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module">
+    import { requireAuth } from './app.js';
+    requireAuth("metas");
+    import './metas.js';
+  </script>
+</body>
+</html>

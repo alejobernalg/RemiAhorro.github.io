@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RemiAhorro — Elegir perfil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card" style="width:min(820px,95vw)">
+      <h2 class="auth-title" style="margin-bottom:6px">Elige tu tipo de ahorro</h2>
+      <p class="muted" style="margin:0 0 14px">Usaremos este perfil para distribuir tu monto mensual.</p>
+
+      <div id="cards" class="grid-3"></div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
+        <a href="login.html" class="btn secondary">Volver</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { PROFILES, getUser, saveUser } from './app.js';
+    const $ = (sel,ctx=document)=>ctx.querySelector(sel);
+    const fmt = n => "$" + Number(n||0).toLocaleString("es-CO",{maximumFractionDigits:0});
+
+    const amount = Number(localStorage.getItem("remi_amount"))||0;
+    const cards = $("#cards");
+
+    function bar(lbl,pct,val){
+      return `
+        <div class="row" style="margin:10px 0">
+          <div class="lbl">${lbl}</div>
+          <div class="track"><div class="fill" style="width:${pct}%"><span class="val-inside">${fmt(val)}</span></div></div>
+          <div class="perc">${pct}%</div>
+        </div>`;
+    }
+
+    function card(key){
+      const p = PROFILES[key], d = p.dist;
+      const c = Math.round(amount*d.c/100), a = Math.round(amount*d.a/100), s = Math.round(amount*d.s/100);
+      return `
+        <div class="card dist-card" data-k="${key}" style="cursor:pointer">
+          <h4 style="margin:0 0 6px;color:#1d523b;font-size:20px">${p.name}</h4>
+          <div class="muted" style="margin-bottom:10px">${p.desc}</div>
+          ${bar('Consumo', d.c, c)}
+          ${bar('Ahorro', d.a, a)}
+          ${bar('Servicios', d.s, s)}
+          <button class="btn primary" style="width:100%;margin-top:10px">Elegir este</button>
+        </div>`;
+    }
+
+    function mount(){
+      cards.innerHTML = card('equilibrado') + card('ahorro_activo') + card('pago_prioritario');
+      cards.querySelectorAll('.dist-card').forEach(el=>{
+        el.addEventListener('click', ()=> choose(el.dataset.k));
+      });
+    }
+
+    function choose(key){
+      if(!PROFILES[key]) return;
+      // Guardar perfil elegido
+      localStorage.setItem("remi_profile", key);
+
+      // Actualizar usuario
+      const u = getUser() || {};
+      u.profile = key;
+      saveUser(u);
+      localStorage.setItem("remi_user", JSON.stringify(u));
+
+      // Nueva sesión (para que metas sincronice la cuota de ahorro con este perfil)
+      localStorage.setItem("remi_session_id", String(Date.now()));
+
+      // Ir al inicio
+      window.location.href = "index.html";
+    }
+
+    mount();
+  </script>
+</body>
+</html>

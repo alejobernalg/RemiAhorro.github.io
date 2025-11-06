@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RemiAhorro — Inicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ——— Hero / Dona ——— */
+    .hero-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .dot{width:22px;height:22px;border-radius:50%;border:2px solid #156646;background:radial-gradient(circle at 35% 35%, #1fb06a 0 40%, transparent 41%), #e4f4ec}
+    .hero-title{font-size:24px;color:#1c4e38;margin:0}
+    .hero-grid{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:center}
+    @media (max-width:1000px){ .hero-grid{grid-template-columns:1fr} }
+
+    .donut-wrap{position:relative;width:320px;height:320px;margin:auto}
+    .donut{
+      width:100%;height:100%;border-radius:50%;
+      /* fondo base (gris muy claro) por si no hay datos */
+      background: conic-gradient(#e9f3ee 0 100%);
+      /* anillo central blanco para legibilidad */
+      box-shadow: inset 0 0 0 42px #fff, var(--shadow);
+      border: 1px solid var(--ring);
+    }
+    .donut-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+    .donut-amount{font-size:34px;font-weight:800;color:#113c2a;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+    .donut-sub{font-size:12px;color:#688b7a}
+
+    .legend{display:flex;flex-direction:column;gap:12px}
+    .legend-row{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;align-items:center;font-weight:600}
+    .legend-dot{width:14px;height:14px;border-radius:50%}
+    .legend-consumo{background:var(--consumo)}
+    .legend-ahorro{background:var(--ahorro)}
+    .legend-servicios{background:var(--serv)}
+    .legend-label{color:#1f4d38}
+    .legend-fill{height:1px;background:#e7efe9}
+    .legend-val{color:#163a2a}
+    .quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+    @media (max-width:1000px){ .quick-actions{grid-template-columns:1fr} }
+    .qa{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--ring);border-radius:16px;background:#f7fbf8;font-weight:800;color:#1b5b40;cursor:pointer}
+    .qa:hover{background:#eef7f1}
+
+    /* ——— KPIs de ahorro ——— */
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:1000px){ .kpi-grid{grid-template-columns:1fr} }
+    .kpi-card{background:#fff;border:1px solid var(--ring);border-radius:18px;padding:16px}
+    .kpi-title{color:#15563e;font-weight:800;margin-bottom:6px}
+    .kpi-value{font-size:26px;font-weight:800;color:#133c29}
+    .kpi-sub{color:#6a8f7e}
+
+    /* ——— Evolución de ahorro ——— */
+    .evo-wrap{display:grid;grid-template-columns:1fr;gap:12px}
+    .bars{display:flex;align-items:flex-end;gap:10px;height:120px}
+    .bar{
+      flex:1; min-width:8px; border-radius:10px 10px 4px 4px;
+      background:linear-gradient(180deg, #19b169, #128b54 70%);
+      box-shadow:0 4px 10px rgba(25,177,105,.18);
+      position:relative;
+    }
+    .bar::after{
+      content:attr(data-label);
+      position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+      font-size:11px;color:#557c6b;
+    }
+
+    /* ——— Distribución hacia metas ——— */
+    .stack-card{background:#fff;border:1px solid var(--ring);border-radius:18px;padding:16px}
+    .stack{
+      height:18px;border-radius:999px;border:1px solid var(--ring);
+      background:#eaf3ee;overflow:hidden; display:flex;
+    }
+    .chunk{height:100%}
+    .chunk-0{background:#19b169}
+    .chunk-1{background:#f4bf28}
+    .chunk-2{background:#156646}
+    .chunk-3{background:#2c8d6e}
+    .chunk-4{background:#88d1b3}
+    .stack-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--ring);border-radius:999px;background:#fff}
+    .dot-sm{width:10px;height:10px;border-radius:50%}
+
+    /* ——— Tarjetas billeteras (solo Consumo y Ahorro) ——— */
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media (max-width:1000px){ .cards{grid-template-columns:1fr} }
+    .wallet-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .wallet-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#eaf6ef}
+    .wallet-title{font-weight:800;color:#1f513b}
+    .money{font-size:26px;font-weight:800;margin:0 0 2px;color:#143f2d}
+    .sub{color:#6a8f7e}
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div><h1>RemiAhorro</h1><div style="font-size:12px;color:#5a8d75">Gestiona tus remesas</div></div>
+      </div>
+      <nav class="nav">
+        <a href="index.html" class="active">Inicio</a>
+        <a href="metas.html">Metas</a>
+        <a href="educacion.html">Educación</a>
+        <a href="perfil.html">Mi perfil</a>
+        <a href="#" class="logout" id="navLogout">Salir</a>
+        <a href="#" id="navUser" style="pointer-events:none"></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- HERO -->
+    <section class="card">
+      <div class="hero-head">
+        <div class="dot" aria-hidden="true"></div>
+        <h2 class="hero-title">Tu última remesa se distribuyó automáticamente</h2>
+      </div>
+
+      <div class="hero-grid">
+        <!-- DONA -->
+        <div class="donut-wrap">
+          <div id="donut" class="donut"></div>
+          <div class="donut-center">
+            <div id="dAmount" class="donut-amount">$0</div>
+            <div class="donut-sub">COP</div>
+          </div>
+        </div>
+
+        <!-- LEYENDA (solo lectura) -->
+        <div class="legend">
+          <div class="legend-row">
+            <span class="legend-dot legend-consumo"></span><span class="legend-label">Consumo</span>
+            <span class="legend-fill"></span>
+            <span class="legend-val"><b id="cPct">–</b> – <span id="cVal">$0</span></span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot legend-ahorro"></span><span class="legend-label">Ahorro</span>
+            <span class="legend-fill"></span>
+            <span class="legend-val"><b id="aPct">–</b> – <span id="aVal">$0</span></span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot legend-servicios"></span><span class="legend-label">Servicios</span>
+            <span class="legend-fill"></span>
+            <span class="legend-val"><b id="sPct">–</b> – <span id="sVal">$0</span></span>
+          </div>
+
+          <div class="quick-actions">
+            <button class="qa" id="goMetas">🎯 Aportar a metas</button>
+            <button class="qa" id="goEdu">📚 Ir a educación</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPIs DE AHORRO -->
+    <h2 class="section-title">Ahorro en cifras</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Ahorro disponible</div>
+        <div class="kpi-value" id="kpiAhorroDisp">$0</div>
+        <div class="kpi-sub">Listo para mover a metas</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Ahorro proyectado del mes</div>
+        <div class="kpi-value" id="kpiAhorroMes">$0</div>
+        <div class="kpi-sub">Según tu distribución actual</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">% de ahorro</div>
+        <div class="kpi-value" id="kpiPctAhorro">0%</div>
+        <div class="kpi-sub">Porcentaje de la remesa</div>
+      </div>
+    </div>
+
+    <!-- EVOLUCIÓN DE AHORRO -->
+    <h2 class="section-title">Evolución de ahorro (últimos depósitos)</h2>
+    <div class="card evo-wrap">
+      <div class="bars" id="bars"></div>
+      <div class="muted">Simulación visual basada en tu historial local.</div>
+    </div>
+
+
+    <!-- BILLETERAS (solo Consumo y Ahorro) -->
+    <h2 class="section-title">Tus Billeteras</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="wallet-head"><div class="wallet-icon">🧾</div><div class="wallet-title">Consumo</div></div>
+        <div id="wCons" class="money">$0</div>
+        <div class="sub">COP disponible</div>
+        <button class="btn primary" style="width:100%;margin-top:10px" id="btnConsumo">Ver movimientos</button>
+      </div>
+      <div class="card">
+        <div class="wallet-head"><div class="wallet-icon">💰</div><div class="wallet-title">Ahorro</div></div>
+        <div id="wAho" class="money">$0</div>
+        <div class="sub">COP guardado / disponible</div>
+        <button class="btn primary" style="width:100%;margin-top:10px" id="btnAhorro">Aportar a metas</button>
+      </div>
+    </div>
+
+    <!-- RECOMENDACIÓN -->
+    <section id="recoCard" class="card" style="border:1px solid #cfe8d9;margin-top:18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="dot"></div><div style="font-weight:800;color:#143c2a;font-size:20px">Recomendación Inteligente</div>
+      </div>
+      <div style="display:grid;grid-template-columns:.7fr .7fr 1fr;gap:18px">
+        <div><div class="muted">Sugerimos ahorrar</div><div style="font-size:32px;color:#1c5d40;font-weight:800">20%</div></div>
+        <div><div class="muted">Nivel de confianza</div><div style="font-size:32px;color:#1c5d40;font-weight:800">80%</div></div>
+        <div><div class="muted">Razón</div><div>Normalmente ahorras 12% y recibes 3 remesas/mes</div></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:14px">
+        <button class="btn primary" id="acceptRec" style="flex:1">Aceptar recomendación</button>
+        <button class="btn secondary" style="flex:1" id="ignoreRec">Ignorar</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>
