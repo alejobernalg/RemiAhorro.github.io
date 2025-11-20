@@ -6,29 +6,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="auth-wrap">
-    <div class="auth-card">
-      <h2 class="auth-title">Bienvenido a RemiAhorro</h2>
-      <p class="muted" style="margin:0 0 12px">Ingresa tus datos para empezar a ahorrar automático.</p>
+<div class="auth-card">
 
-      <form id="loginForm">
-        <div class="field">
-          <label for="name">Nombre</label>
-          <input id="name" type="text" placeholder="Tu nombre" autocomplete="name">
-        </div>
+  <!-- LADO IZQUIERDO (verde) -->
+  <div class="auth-side-left">
+    <h2>¡Bienvenido!</h2>
+    <p>Para seguir ahorrando con RemiAhorro, ingresa tus datos personales.</p>
+  </div>
 
-        <div class="field">
-          <label for="amount">Monto mensual estimado (COP)</label>
-          <input id="amount" type="number" min="60000" step="1000" value="120000" required>
-          <small class="muted" id="amountPretty" style="margin-top:4px;display:block">Formateado: $120.000</small>
-        </div>
+  <!-- LADO DERECHO (formulario blanco) -->
+  <div class="auth-side-right">
 
-        <div class="auth-actions">
-          <button id="go" class="btn primary" type="submit" style="width:100%">Entrar</button>
-        </div>
-      </form>
+    <div class="auth-logo">
+      <img src="logo.jpeg" alt="RemiAhorro">
     </div>
+
+    <h2 class="auth-title">Bienvenido a RemiAhorro</h2>
+    <p class="muted">Ingresa tus datos para empezar a ahorrar automático.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="name">Nombre</label>
+        <input id="name" type="text" placeholder="Tu nombre" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="amount">Monto mensual estimado (COP)</label>
+        <input id="amount" type="number" min="60000" step="1000" value="120000" required>
+        <small class="muted" id="amountPretty" style="margin-top:4px;display:block">Formateado: $120.000</small>
+      </div>
+
+      <div class="auth-actions">
+        <button id="go" class="btn primary" type="submit" style="width:100%">Entrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
   </div>
 
   <script type="module">

@@ -92,7 +92,10 @@ function ensureSessionSynced(){
 
 // ==== Estado global de esta página ====
 let goals = loadGoals();
-let savingsAvail = ensureSessionSynced();
+import { ensureSavingsSynced } from './app.js';
+
+let savingsAvail = ensureSavingsSynced(getUser());
+
 
 // ==== Render principal ====
 const grid = $("#goalsGrid");

@@ -1,21 +1,25 @@
-import { requireAuth, PROFILES, fmt, saveUser } from './app.js';
+// index.js — versión corregida, completa y con evolución premium
 
+import { requireAuth, PROFILES, fmt, saveUser, ensureSavingsSynced } from './app.js';
+
+// ===== 0) Autenticación =====
 const user = requireAuth("inicio");
 if (!user) throw new Error("auth");
 
-// ===== 1) Cargar monto =====
+// ===== 1) Monto =====
 const rawAmount = localStorage.getItem("remi_amount");
 const amount = Number(rawAmount ?? user.amount ?? 0) || 0;
 user.amount = amount;
 
-// ===== 2) Perfil desde elige-perfil o default =====
+// ===== 2) Perfil =====
 const storedProfile = localStorage.getItem("remi_profile");
 user.profile = (storedProfile && PROFILES[storedProfile])
   ? storedProfile
   : (user.profile && PROFILES[user.profile] ? user.profile : "equilibrado");
+
 saveUser(user);
 
-// ===== 3) Refs =====
+// ===== 3) Referencias =====
 const donut   = document.getElementById('donut');
 const dAmount = document.getElementById('dAmount');
 
@@ -41,104 +45,132 @@ const bars        = document.getElementById('bars');
 const stack       = document.getElementById('stack');
 const stackLegend = document.getElementById('stackLegend');
 
-const recoCard     = document.getElementById('recoCard');
-const acceptRecBtn = document.getElementById('acceptRec');
-const ignoreRecBtn = document.getElementById('ignoreRec');
-
-// ===== 4) Recomendación ocultable =====
-const RECO_KEY = "remi_reco_dismissed";
-function hideReco(){ if (recoCard) recoCard.style.display = "none"; localStorage.setItem(RECO_KEY,"1"); }
-if (localStorage.getItem(RECO_KEY) === "1") hideReco();
-acceptRecBtn?.addEventListener('click', hideReco);
-ignoreRecBtn?.addEventListener('click', hideReco);
-
 // ===== Helpers =====
-const fmtK = n => n >= 1000 ? "$" + Math.round(n / 1000) + "K" : fmt(n);
+const fmtFull = n => fmt(Number(n || 0));
 
-// ===== 5) Render principal =====
+// ======================================================
+//                   RENDER PRINCIPAL
+// ======================================================
 function render() {
   const pKey = user.profile || 'equilibrado';
   const d = PROFILES[pKey].dist;
 
-  // Ahorro disponible real (impactado por movimientos en Metas)
-  const storedAhorro = Number(localStorage.getItem("remi_savings_available"));
-  const ahorroDisponible = (!isNaN(storedAhorro) && storedAhorro >= 0)
-    ? storedAhorro
-    : Math.round(amount * d.a / 100);
+  // Sincronización real del ahorro disponible
+  const ahorroDisponible = ensureSavingsSynced(user);
 
-  // Otros montos
+  // Montos por categoría
   const vC = Math.round(amount * d.c / 100);
   const vA = ahorroDisponible;
   const vS = Math.round(amount * d.s / 100);
 
-  // Dona
-  const c1 = d.c, c2 = d.c + d.a;
-  donut.style.background = `conic-gradient(
-    var(--consumo) 0 ${c1}%,
-    var(--ahorro)  ${c1}% ${c2}%,
-    var(--serv)    ${c2}% 100%)`;
+  // ===== 🎨 DONA PREMIUM =====
+  const cDeg = (d.c / 100) * 360;
+  const aDeg = (d.a / 100) * 360;
 
-  // Texto
-  dAmount.textContent = fmtK(amount);
+  donut.style.background = `
+    conic-gradient(
+      var(--consumo) 0deg ${cDeg}deg,
+      var(--ahorro)  ${cDeg}deg ${cDeg + aDeg}deg,
+      var(--serv)    ${cDeg + aDeg}deg 360deg
+    )
+  `;
+
+  // ===== Texto =====
+  dAmount.textContent = fmtFull(amount);
+
   cPct.textContent = d.c + "%";
   aPct.textContent = d.a + "%";
   sPct.textContent = d.s + "%";
 
-  cVal.textContent = fmt(vC);
-  aVal.textContent = fmt(vA);
-  sVal.textContent = fmt(vS);
+  cVal.textContent = fmtFull(vC);
+  aVal.textContent = fmtFull(vA);
+  sVal.textContent = fmtFull(vS);
 
-  wCons.textContent = fmt(vC);
-  wAho.textContent  = fmt(vA);
+  wCons.textContent = fmtFull(vC);
+  wAho.textContent  = fmtFull(vA);
 
   // KPIs
-  kpiAhorroDisp.textContent = fmt(vA);
-  kpiAhorroMes.textContent  = fmt(Math.round(amount * d.a / 100));
+  kpiAhorroDisp.textContent = fmtFull(vA);
+  kpiAhorroMes.textContent  = fmtFull(Math.round(amount * d.a / 100));
   kpiPctAhorro.textContent  = d.a + "%";
 
-  // Evolución (historial simple en localStorage)
   renderEvolucion(d.a);
-
-  // Stack hacia metas
   renderStackMetas();
 }
 
-function renderEvolucion(pctAhorro){
+// ======================================================
+//     EVOLUCIÓN DE AHORRO — VERSIÓN PREMIUM REALISTA
+// ======================================================
+function renderEvolucion(pctAhorro) {
   const KEY = "remi_savings_history";
-  // Historial de 6-8 puntos; si no existe, creamos a partir del % de ahorro
+
   let arr = [];
   try { arr = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch {}
-  if (!Array.isArray(arr) || arr.length === 0){
-    // crea 6 puntos simulados alrededor del ahorro actual (±20%)
-    const base = Math.round((user.amount||0) * pctAhorro/100);
-    arr = Array.from({length:6}, (_,i)=> Math.max(0, Math.round(base * (0.8 + 0.08*i))));
+
+  const base = Math.round((user.amount || 0) * pctAhorro / 100);
+
+  // Si no existe historial → lo generamos progresivo con variación realista
+  if (!Array.isArray(arr) || arr.length === 0) {
+    arr = [];
+    let current = base * 0.75; // arranca ligeramente más abajo
+
+    for (let i = 0; i < 6; i++) {
+      const growth = (Math.random() * 0.15) + 0.05; // crecimiento 5%–20%
+      current = current * (1 + growth);
+      arr.push(Math.round(current));
+    }
+
     localStorage.setItem(KEY, JSON.stringify(arr));
   }
 
+  // ==== Render ====
   bars.innerHTML = "";
   const max = Math.max(...arr, 1);
+
   const labels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
   const today = new Date();
-  for (let i=0;i<arr.length;i++){
-    const h = Math.round((arr[i]/max) * 100);
-    const lab = labels[(today.getMonth()- (arr.length-1-i) + 12) % 12];
-    const d = document.createElement("div");
-    d.className = "bar";
-    d.style.height = h + "%";
-    d.setAttribute("data-label", lab);
-    bars.appendChild(d);
+
+  for (let i = 0; i < arr.length; i++) {
+    const h = Math.round((arr[i] / max) * 100);
+    const month = labels[(today.getMonth() - (arr.length - 1 - i) + 12) % 12];
+
+    const growth = i === 0 ? null : ((arr[i] - arr[i - 1]) / arr[i - 1]) * 100;
+    const growthTxt = growth ? `${growth > 0 ? "+" : ""}${growth.toFixed(1)}%` : "";
+
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.height = h + "%";
+
+    // % crecimiento arriba
+    if (growthTxt) {
+      const g = document.createElement("div");
+      g.className = "bar-growth";
+      g.textContent = growthTxt;
+      bar.appendChild(g);
+    }
+
+    // Mes debajo
+    const lbl = document.createElement("div");
+    lbl.className = "bar-label";
+    lbl.textContent = month;
+    bar.appendChild(lbl);
+
+    bars.appendChild(bar);
   }
 }
 
-function renderStackMetas(){
-  // Lee metas
+// ======================================================
+//                 STACK DE METAS
+// ======================================================
+function renderStackMetas() {
   const raw = localStorage.getItem("remi_goals");
   let goals = [];
   try { goals = JSON.parse(raw || "[]"); } catch {}
-  // Si no hay, muestra vacío y sale
+
   stack.innerHTML = "";
   stackLegend.innerHTML = "";
-  if (!Array.isArray(goals) || goals.length === 0){
+
+  if (!Array.isArray(goals) || goals.length === 0) {
     const empty = document.createElement("div");
     empty.className = "muted";
     empty.textContent = "Aún no has creado metas.";
@@ -146,11 +178,10 @@ function renderStackMetas(){
     return;
   }
 
-  // Ordena por saved desc, toma hasta 5 colores
   goals.sort((a,b)=> (b.saved||0)-(a.saved||0));
   const total = goals.reduce((acc,g)=> acc + (Number(g.saved)||0), 0);
 
-  if (total <= 0){
+  if (total <= 0) {
     const empty = document.createElement("div");
     empty.className = "muted";
     empty.textContent = "Todavía no has aportado a ninguna meta.";
@@ -159,33 +190,36 @@ function renderStackMetas(){
   }
 
   goals.slice(0,5).forEach((g,idx)=>{
-    const pct = Math.max(2, Math.round((g.saved||0) * 100 / total)); // ancho mínimo visible
+    const pct = Math.max(2, Math.round((g.saved||0) * 100 / total));
+
     const chunk = document.createElement("div");
     chunk.className = `chunk chunk-${idx}`;
     chunk.style.width = pct + "%";
-    chunk.title = `${g.name}: ${fmt(g.saved)} (${pct}%)`;
     stack.appendChild(chunk);
 
     const tag = document.createElement("span");
     tag.className = "tag";
-    tag.innerHTML = `<span class="dot-sm" style="background: var(--ring); box-shadow: inset 0 0 0 1000px currentColor"></span> ${g.name} — <b style="margin-left:6px">${pct}%</b>`;
-    // Color del punto = mismo que el chunk
+    tag.innerHTML = `<span class="dot-sm"></span> ${g.name} — <b>${pct}%</b>`;
+
     const colors = ["#19b169","#f4bf28","#156646","#2c8d6e","#88d1b3"];
-    tag.querySelector(".dot-sm").style.color = colors[idx % colors.length];
+    tag.querySelector(".dot-sm").style.background = colors[idx % colors.length];
+
     stackLegend.appendChild(tag);
   });
 }
 
-// ===== 6) Reaccionar a cambios desde Metas =====
+// ======================================================
+//                   EVENTOS
+// ======================================================
 window.addEventListener("storage", (e) => {
   if (e.key === "remi_savings_available" || e.key === "remi_goals") render();
 });
 
-// ===== 7) Acciones rápidas =====
 goMetas && (goMetas.onclick = () => location.href = "metas.html");
 goEdu   && (goEdu.onclick   = () => location.href = "educacion.html");
+
 document.getElementById('btnConsumo')?.addEventListener('click', () => alert('Ver movimientos (demo)'));
 document.getElementById('btnAhorro') ?.addEventListener('click', () => location.href='metas.html');
 
-// ===== 8) Pintar todo =====
+// ===== Render final =====
 render();

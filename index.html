@@ -6,10 +6,21 @@
   <title>RemiAhorro — Inicio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
+ <style>
+    /* 🎨 Paleta premium para la DONA (Fintech Pro) */
+    :root {
+      --consumo: #0E7F62;  /* Verde profundo */
+      --ahorro:  #2DE1C2;  /* Turquesa premium */
+      --serv:    #FFD66E;  /* Amarillo pastel cálido */
+    }
+
     /* ——— Hero / Dona ——— */
     .hero-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    .dot{width:22px;height:22px;border-radius:50%;border:2px solid #156646;background:radial-gradient(circle at 35% 35%, #1fb06a 0 40%, transparent 41%), #e4f4ec}
+    .dot{
+      width:22px;height:22px;border-radius:50%;
+      border:2px solid #0E7F62;
+      background:radial-gradient(circle at 35% 35%, #2DE1C2 0 40%, transparent 41%), #e4f4ec
+    }
     .hero-title{font-size:24px;color:#1c4e38;margin:0}
     .hero-grid{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:center}
     @media (max-width:1000px){ .hero-grid{grid-template-columns:1fr} }
@@ -17,9 +28,11 @@
     .donut-wrap{position:relative;width:320px;height:320px;margin:auto}
     .donut{
       width:100%;height:100%;border-radius:50%;
-      /* fondo base (gris muy claro) por si no hay datos */
-      background: conic-gradient(#e9f3ee 0 100%);
-      /* anillo central blanco para legibilidad */
+
+      /* Fondo base antes de que el JS pinte la distribución */
+      background: conic-gradient(var(--consumo) 0 33%, var(--ahorro) 33% 66%, var(--serv) 66% 100%);
+
+      /* Anillo central */
       box-shadow: inset 0 0 0 42px #fff, var(--shadow);
       border: 1px solid var(--ring);
     }
@@ -54,7 +67,7 @@
     .bars{display:flex;align-items:flex-end;gap:10px;height:120px}
     .bar{
       flex:1; min-width:8px; border-radius:10px 10px 4px 4px;
-      background:linear-gradient(180deg, #19b169, #128b54 70%);
+      background:linear-gradient(180deg, #2DE1C2, #0E7F62 70%);
       box-shadow:0 4px 10px rgba(25,177,105,.18);
       position:relative;
     }
@@ -71,9 +84,9 @@
       background:#eaf3ee;overflow:hidden; display:flex;
     }
     .chunk{height:100%}
-    .chunk-0{background:#19b169}
-    .chunk-1{background:#f4bf28}
-    .chunk-2{background:#156646}
+    .chunk-0{background:#0E7F62}
+    .chunk-1{background:#FFD66E}
+    .chunk-2{background:#2DE1C2}
     .chunk-3{background:#2c8d6e}
     .chunk-4{background:#88d1b3}
     .stack-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -88,7 +101,8 @@
     .wallet-title{font-weight:800;color:#1f513b}
     .money{font-size:26px;font-weight:800;margin:0 0 2px;color:#143f2d}
     .sub{color:#6a8f7e}
-  </style>
+</style>
+
 </head>
 <body>
   <!-- Topbar -->
@@ -198,22 +212,6 @@
       </div>
     </div>
 
-    <!-- RECOMENDACIÓN -->
-    <section id="recoCard" class="card" style="border:1px solid #cfe8d9;margin-top:18px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div class="dot"></div><div style="font-weight:800;color:#143c2a;font-size:20px">Recomendación Inteligente</div>
-      </div>
-      <div style="display:grid;grid-template-columns:.7fr .7fr 1fr;gap:18px">
-        <div><div class="muted">Sugerimos ahorrar</div><div style="font-size:32px;color:#1c5d40;font-weight:800">20%</div></div>
-        <div><div class="muted">Nivel de confianza</div><div style="font-size:32px;color:#1c5d40;font-weight:800">80%</div></div>
-        <div><div class="muted">Razón</div><div>Normalmente ahorras 12% y recibes 3 remesas/mes</div></div>
-      </div>
-      <div style="display:flex;gap:12px;margin-top:14px">
-        <button class="btn primary" id="acceptRec" style="flex:1">Aceptar recomendación</button>
-        <button class="btn secondary" style="flex:1" id="ignoreRec">Ignorar</button>
-      </div>
-    </section>
-  </div>
 
   <script type="module" src="index.js"></script>
 </body>

@@ -1,234 +1,275 @@
-// Persistencia en localStorage
-const K = {
-  EDU: 'remi_edu_state',  // {lessons:{id:{done}}, quizScore, streak, lastDay, habits:{id:bool}}
+// =========================================================
+// RemiAhorro — EDUCACIÓN
+// =========================================================
+
+import { requireAuth, fmt } from "./app.js";
+
+const user = requireAuth("educacion");
+
+// =========================================================
+// Utilidades
+// =========================================================
+const $ = (q) => document.querySelector(q);
+const $$ = (q) => document.querySelectorAll(q);
+
+function load(key, def) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? def;
+  } catch {
+    return def;
+  }
+}
+
+function save(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+// =========================================================
+// Datos iniciales
+// =========================================================
+const lessons = [
+  { id: 1, title: "Tus primeras metas", icon: "🎯", mins: 2 },
+  { id: 2, title: "Ahorro automático", icon: "⚡", mins: 3 },
+  { id: 3, title: "Fondo de emergencia", icon: "💼", mins: 3 },
+  { id: 4, title: "Interés compuesto", icon: "📈", mins: 2 },
+  { id: 5, title: "Cómo dividir tu remesa", icon: "🧮", mins: 1 },
+  { id: 6, title: "Errores comunes", icon: "❗", mins: 2 }
+];
+
+const habits = [
+  "Ahorré primero",
+  "No gasté de más",
+  "Revisé mis metas",
+];
+
+const badges = [
+  { id: "first-lesson", name: "Primera lección", icon: "🏅" },
+  { id: "streak-3", name: "Racha de 3 días", icon: "🔥" },
+  { id: "streak-7", name: "Racha de 7 días", icon: "⚡" },
+  { id: "all-complete", name: "100% lecciones", icon: "🌟" },
+];
+
+// =========================================================
+// Estado persistente
+// =========================================================
+let state = load("edu_state", {
+  lessons: {},    // {1:true, 2:true ...}
+  streak: 0,
+  lastDay: null,
+  habits: {},
+  badges: {},
+});
+
+function saveState() {
+  save("edu_state", state);
+  renderAll();
+}
+
+// =========================================================
+// Render de KPIs
+// =========================================================
+function renderKPIs() {
+  const done = Object.values(state.lessons).filter(Boolean).length;
+  $("#kpiLessons").textContent = done;
+
+  $("#kpiStreak").textContent = `${state.streak} días`;
+
+  const pct = Math.round((done / lessons.length) * 100);
+  $("#kpiProgress").style.width = pct + "%";
+}
+
+// =========================================================
+// Render de lecciones
+// =========================================================
+function renderLessons() {
+  const grid = $("#lessonGrid");
+  grid.innerHTML = "";
+
+  lessons.forEach((l) => {
+    const done = state.lessons[l.id];
+
+    const card = document.createElement("div");
+    card.className = "lesson";
+    card.innerHTML = `
+      <div class="lesson-ico">${l.icon}</div>
+      <div style="flex:1">
+        <h3>${l.title}</h3>
+        <div style="display:flex;justify-content:space-between">
+          <span class="muted-sm">${l.mins} min</span>
+          <span class="pill-mini">${done ? "Completada" : "Ver"}</span>
+        </div>
+        <div class="progress-lite" style="margin-top:6px"><span style="width:${done ? 100 : 0}%"></span></div>
+      </div>
+    `;
+
+    card.onclick = () => openLesson(l);
+    grid.appendChild(card);
+  });
+}
+
+// =========================================================
+// Abrir lección (video)
+/////////////////////////////////////////////////////////////
+let currentLessonId = null;
+
+function openLesson(lesson) {
+  currentLessonId = lesson.id;
+  $("#videoTitle").textContent = lesson.title;
+  $("#videoModal").showModal();
+}
+
+$("#videoClose").onclick = () => $("#videoModal").close();
+
+$("#videoComplete").onclick = () => {
+  if (currentLessonId) {
+    state.lessons[currentLessonId] = true;
+    giveBadge("first-lesson");
+
+    if (Object.values(state.lessons).filter(Boolean).length === lessons.length) {
+      giveBadge("all-complete");
+    }
+  }
+  saveState();
+  $("#videoModal").close();
 };
 
-const $  = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const fmt = n => "$" + Number(n||0).toLocaleString("es-CO", {maximumFractionDigits:0});
+// =========================================================
+// Racha diaria
+// =========================================================
+function updateStreak() {
+  const today = new Date().toDateString();
 
-// Estado base
-function loadState(){
-  const raw = localStorage.getItem(K.EDU);
-  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
-  const s = { lessons:{}, quizScore:0, streak:0, lastDay:null, habits:{} };
-  localStorage.setItem(K.EDU, JSON.stringify(s));
-  return s;
-}
-function saveState(s){ localStorage.setItem(K.EDU, JSON.stringify(s)); }
+  if (state.lastDay === today) return;
 
-let state = loadState();
+  if (!state.lastDay) {
+    state.streak = 1;
+  } else {
+    const last = new Date(state.lastDay);
+    const diff = (new Date(today) - last) / (1000 * 3600 * 24);
 
-// Lecciones (puedes añadir más)
-const LESSONS = [
-  { id:'l1', ico:'🎯', title:'Cómo ahorrar con remesas', dur:'5 min', tag:'Básico' },
-  { id:'l2', ico:'📊', title:'Presupuesto 50/30/20',     dur:'6 min', tag:'Básico' },
-  { id:'l3', ico:'🏦', title:'Fondo de emergencia',       dur:'4 min', tag:'Esencial' },
-  { id:'l4', ico:'💳', title:'Tarjetas: buenas prácticas',dur:'7 min', tag:'Intermedio' },
-  { id:'l5', ico:'📈', title:'Interés compuesto',         dur:'5 min', tag:'Básico' },
-  { id:'l6', ico:'🎯', title:'Metas SMART',               dur:'5 min', tag:'Esencial' },
-];
-
-const HABITS = [
-  { id:'h1', text:'Separé primero mi % de ahorro' },
-  { id:'h2', text:'Registré gastos de hoy' },
-  { id:'h3', text:'Revisé mis metas activas' },
-  { id:'h4', text:'Evité compras impulsivas' },
-  { id:'h5', text:'Revisé mi fondo de emergencia' },
-  { id:'h6', text:'Leí 5 min sobre finanzas' },
-];
-
-const BADGES = [
-  { id:'b1', ico:'🥉', name:'Primer paso', req: s=> Object.values(s.lessons).filter(x=>x?.done).length >= 1 },
-  { id:'b2', ico:'🥈', name:'Aprendiz',    req: s=> Object.values(s.lessons).filter(x=>x?.done).length >= 3 },
-  { id:'b3', ico:'🏅', name:'Constante',   req: s=> s.streak >= 3 },
-  { id:'b4', ico:'🏆', name:'Experto',     req: s=> (Object.values(s.lessons).filter(x=>x?.done).length >= LESSONS.length) && s.quizScore >= 3 },
-];
-
-// KPI / streak
-function updateStreak(){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const todayNum = today.getTime();
-  if(state.lastDay === null){
-    state.streak = 1; state.lastDay = todayNum; return;
+    if (diff <= 1) state.streak += 1;
+    else state.streak = 1;
   }
-  const delta = (todayNum - state.lastDay) / (1000*60*60*24);
-  if(delta === 0) return;        // ya contado hoy
-  if(delta === 1) state.streak += 1;
-  else state.streak = 1;
-  state.lastDay = todayNum;
-}
-updateStreak();
-saveState(state);
 
-// Render KPIs
-function renderKPIs(){
-  const done = Object.values(state.lessons).filter(x=>x?.done).length;
-  const total = LESSONS.length;
-  $('#kpiLessons').textContent = String(done);
-  const pct = Math.round(((done + (state.quizScore>0?1:0)) / (total+1)) * 100);
-  $('#kpiProgress').style.width = Math.min(100, pct) + '%';
-  $('#kpiStreak').textContent = (state.streak||0) + ' días';
+  state.lastDay = today;
+
+  if (state.streak === 3) giveBadge("streak-3");
+  if (state.streak === 7) giveBadge("streak-7");
+
+  saveState();
 }
 
-// Render lecciones
-function renderLessons(){
-  const grid = $('#lessonGrid');
-  grid.innerHTML = LESSONS.map(l=>{
-    const done = state.lessons[l.id]?.done;
-    return `
-      <div class="lesson" data-id="${l.id}">
-        <div class="lesson-ico">${l.ico}</div>
-        <div style="flex:1">
-          <h3>${l.title}</h3>
-          <div class="muted">${l.dur} · <span class="pill-mini">${l.tag}</span></div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button class="btn primary js-play">Ver</button>
-            <button class="btn secondary js-quiz">Quiz</button>
-            <button class="btn ghost js-done">${done ? '✔ Completada' : 'Marcar como vista'}</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // listeners
-  $$('#lessonGrid .js-play').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const id = e.currentTarget.closest('.lesson').dataset.id;
-      openVideo(id);
-    });
-  });
-  $$('#lessonGrid .js-quiz').forEach(btn=>{
-    btn.addEventListener('click', openQuiz);
-  });
-  $$('#lessonGrid .js-done').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const id = e.currentTarget.closest('.lesson').dataset.id;
-      markLesson(id, true);
-    });
-  });
-}
-
-function markLesson(id, done=true){
-  state.lessons[id] = { done };
-  saveState(state);
-  renderLessons(); renderKPIs(); renderBadges();
-}
-
-// Video modal (demo)
-const videoModal = $('#videoModal');
-$('#videoClose').addEventListener('click', ()=> videoModal.close());
-$('#videoComplete').addEventListener('click', ()=>{
-  const id = videoModal.dataset.id;
-  if(id) markLesson(id, true);
-  videoModal.close();
-});
-function openVideo(id){
-  const lesson = LESSONS.find(x=>x.id===id);
-  $('#videoTitle').textContent = 'Lección — ' + (lesson?.title || '');
-  videoModal.dataset.id = id;
-  videoModal.showModal();
-}
-
-// Quiz modal
-const quizModal = $('#quizModal');
-$('#quizClose').addEventListener('click', ()=> quizModal.close());
-$('#quizSubmit').addEventListener('click', ()=>{
-  const f = $('#quizForm');
-  const a1 = new FormData(f).get('q1');
-  const a2 = new FormData(f).get('q2');
-  const a3 = new FormData(f).get('q3');
-  let score = 0;
-  if(a1==='b') score++;
-  if(a2==='a') score++;
-  if(a3==='b') score++;
-  state.quizScore = score;
-  saveState(state);
-  $('#quizFeedback').textContent = `Resultado: ${score}/3`;
-  renderKPIs(); renderBadges();
-});
-function openQuiz(){ $('#quizFeedback').textContent=''; $('#quizForm').reset(); quizModal.showModal(); }
-
+// =========================================================
 // Hábitos
-function renderHabits(){
-  const box = $('#habitList');
-  box.innerHTML = HABITS.map(h=>{
-    const on = !!state.habits[h.id];
-    return `
-      <div class="habit" data-id="${h.id}">
-        <div>${h.text}</div>
-        <label class="switch">
-          <input type="checkbox" ${on?'checked':''}>
-          <span></span>
-        </label>
-      </div>
+// =========================================================
+function renderHabits() {
+  const list = $("#habitList");
+  list.innerHTML = "";
+
+  habits.forEach((h) => {
+    const box = document.createElement("div");
+    box.className = "habit";
+    box.innerHTML = `
+      <span>${h}</span>
+      <input type="checkbox" ${state.habits[h] ? "checked" : ""}>
     `;
-  }).join('');
-  // toggle
-  $$('#habitList .habit input').forEach(inp=>{
-    inp.addEventListener('change', e=>{
-      const id = e.currentTarget.closest('.habit').dataset.id;
-      state.habits[id] = e.currentTarget.checked;
-      saveState(state);
-      renderBadges(); // por si algún badge depende de hábitos en el futuro
-    });
+
+    box.querySelector("input").onchange = (e) => {
+      state.habits[h] = e.target.checked;
+      saveState();
+    };
+
+    list.appendChild(box);
   });
 }
 
+// =========================================================
 // Insignias
-function renderBadges(){
-  const box = $('#badgeGrid');
-  box.innerHTML = BADGES.map(b=>{
-    const unlocked = b.req(state);
-    return `
-      <div class="badge ${unlocked?'':'locked'}">
-        <div class="b-ico">${b.ico}</div>
-        <div style="font-weight:800;margin-top:6px">${b.name}</div>
-        <div class="muted-sm">${unlocked ? 'Desbloqueada' : 'Bloqueada'}</div>
-      </div>
-    `;
-  }).join('');
+// =========================================================
+function giveBadge(id) {
+  state.badges[id] = true;
 }
 
-// Simuladores
-function money(n){ return "$" + Number(n||0).toLocaleString("es-CO"); }
-$('#btnIC')?.addEventListener('click', ()=>{
-  const P = Number($('#icP').value)||0;
-  const r = Number($('#icR').value)||0;
-  const t = Number($('#icT').value)||0;
-  const n = Number($('#icN').value)||1;
-  const A = P * Math.pow(1 + (r/100)/n, n*t);
-  $('#icOut').textContent = money(Math.round(A));
-});
-$('#btnAM')?.addEventListener('click', ()=>{
-  const goal = Number($('#amGoal').value)||0;
-  const m    = Number($('#amMonths').value)||0;
-  if(!goal || !m) { $('#amOut').textContent = "$0"; return; }
-  $('#amOut').textContent = money(Math.ceil(goal / m));
-});
+function renderBadges() {
+  const grid = $("#badgeGrid");
+  grid.innerHTML = "";
 
-// Descargar guía (PDF simulado)
-$('#dlGuia')?.addEventListener('click', ()=>{
-  const blob = new Blob([
-    'Guía rápida de ahorro con remesas\n\n1) Ahorra primero\n2) Crea metas\n3) Automatiza\n'
-  ], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'Guia_RemiAhorro.txt'; a.click();
-  URL.revokeObjectURL(url);
-});
+  badges.forEach((b) => {
+    const div = document.createElement("div");
+    div.className = "badge " + (state.badges[b.id] ? "" : "locked");
+    div.innerHTML = `
+      <div class="b-ico">${b.icon}</div>
+      <div style="font-weight:800;margin-top:4px">${b.name}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
 
-// Reset educación
-$('#resetEdu').addEventListener('click', ()=>{
-  if(!confirm('¿Reiniciar todo tu progreso educativo?')) return;
-  state = { lessons:{}, quizScore:0, streak:0, lastDay:null, habits:{} };
-  saveState(state);
-  renderLessons(); renderKPIs(); renderHabits(); renderBadges();
-});
+// =========================================================
+// Quiz
+// =========================================================
+$("#quizSubmit").onclick = () => {
+  const f = $("#quizForm");
+  const q1 = f.q1.value;
+  const q2 = f.q2.value;
+  const q3 = f.q3.value;
 
-// Bootstrap
-renderLessons();
-renderKPIs();
-renderHabits();
-renderBadges();
+  const ok = q1 === "b" && q2 === "a" && q3 === "b";
+
+  $("#quizFeedback").textContent = ok
+    ? "¡Muy bien! Respuestas correctas."
+    : "Algunas respuestas son incorrectas.";
+
+  if (ok) giveBadge("first-lesson");
+
+  saveState();
+};
+
+$("#quizClose").onclick = () => $("#quizModal").close();
+
+// =========================================================
+// Descargar guía PDF (simulado)
+// =========================================================
+$("#dlGuia").onclick = () => {
+  alert("Descarga simulada. Aquí iría tu PDF real.");
+};
+
+// =========================================================
+// 🔥 SIMULADOR: ¿Cuánto necesito ahorrar al mes?
+// =========================================================
+$("#btnAM").onclick = () => {
+  const g = Number($("#amGoal").value);
+  const m = Number($("#amMonths").value);
+
+  if (!g || !m || m <= 0) {
+    $("#amOut").textContent = "—";
+    return;
+  }
+
+  const res = g / m;
+
+  $("#amOut").textContent = fmt(res);
+};
+
+// =========================================================
+// Reset total
+// =========================================================
+$("#resetEdu").onclick = () => {
+  if (confirm("¿Seguro que quieres reiniciar todo tu progreso?")) {
+    localStorage.removeItem("edu_state");
+    location.reload();
+  }
+};
+
+// =========================================================
+// Render global
+// =========================================================
+function renderAll() {
+  renderKPIs();
+  renderLessons();
+  renderHabits();
+  renderBadges();
+}
+
+updateStreak();
+renderAll();

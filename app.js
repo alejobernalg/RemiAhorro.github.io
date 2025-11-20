@@ -78,3 +78,49 @@ export function setAmount(val){
   saveUser(u);
   return u;
 }
+
+// ====== GLOBAL SAVINGS SYNC ======
+
+export const SAVINGS_KEY = "remi_savings_available";
+export const GOALS_KEY = "remi_goals";
+export const SESSION_ID_KEY = "remi_session_id";
+export const SESSION_APPLIED_KEY = "remi_session_applied";
+
+export function getDerivedAhorroShare(user) {
+  const pKey = user.profile || "equilibrado";
+  const dist = PROFILES[pKey].dist;
+  const base = Number(localStorage.getItem("remi_amount")) || user.amount || 0;
+  return Math.round(base * dist.a / 100);
+}
+
+export function ensureSavingsSynced(user){
+  const sid = localStorage.getItem(SESSION_ID_KEY);
+  const applied = localStorage.getItem(SESSION_APPLIED_KEY);
+
+  // Sesión nueva
+  if (sid && sid !== applied){
+    const share = getDerivedAhorroShare(user);
+    localStorage.setItem(SAVINGS_KEY, share);
+    localStorage.setItem(SESSION_APPLIED_KEY, sid);
+    return share;
+  }
+
+  // Si no existe, inicializar
+  let current = localStorage.getItem(SAVINGS_KEY);
+  if (current === null){
+    const share = getDerivedAhorroShare(user);
+    localStorage.setItem(SAVINGS_KEY, share);
+    return share;
+  }
+
+  // Fix legado
+  current = Number(current);
+  if (current === 80000){
+    const share = getDerivedAhorroShare(user);
+    localStorage.setItem(SAVINGS_KEY, share);
+    return share;
+  }
+
+  return current;
+}
+

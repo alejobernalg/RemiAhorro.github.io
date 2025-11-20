@@ -269,3 +269,580 @@ html, body { height: 100%; font-family: Inter, system-ui, Segoe UI, Roboto, Aria
 .switch span:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:50%;transform:translateY(-50%);background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:.25s}
 .switch input:checked + span{background:#1fb06a33;border-color:#aee4cc}
 .switch input:checked + span:before{left:calc(100% - 21px)}
+
+/* ===== LOGIN REESTILIZADO (solo visual) ===== */
+
+/* Fondo más limpio tipo landing */
+.auth-wrap {
+  background:
+    radial-gradient(900px 600px at 85% -10%, #dff6e9 0%, transparent 55%),
+    radial-gradient(700px 500px at -10% 0%, #e7faf1 0%, transparent 60%),
+    var(--bg);
+  padding: 20px;
+}
+
+/* Tarjeta más grande, bordes suaves y curva decorativa */
+.auth-card {
+  position: relative;
+  padding: 50px 40px;
+  border-radius: 26px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  border: none;
+  overflow: hidden;
+}
+
+/* Curva decorativa estilo la imagen */
+.auth-card::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 220px;
+  height: 220px;
+  background: linear-gradient(135deg, #1fb06a, #178353);
+  border-radius: 50%;
+  opacity: 0.18;
+}
+
+/* Título más grande y limpio */
+.auth-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #144e38;
+  letter-spacing: -0.5px;
+}
+
+/* Inputs estilo neumorphism suave */
+.field input {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(6px);
+  border: 1px solid #d9eae1;
+  padding: 14px 14px;
+  font-size: 15px;
+  transition: all .2s;
+}
+
+.field input:focus {
+  border-color: #18b16a;
+  box-shadow: 0 0 0 4px rgba(24,177,106,0.20);
+}
+
+/* Botón verde más moderno */
+.btn.primary {
+  background: linear-gradient(135deg,#178353,#18b16a);
+  font-size: 15px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(23,131,83,0.24);
+}
+
+.btn.primary:hover {
+  background: linear-gradient(135deg,#116843,#18b16a);
+}
+
+/* Pequeño texto sutil */
+.muted {
+  opacity: 0.65;
+  font-size: 14px;
+}
+
+/* Espaciado más amplio */
+.field {
+  margin: 14px 0;
+}
+
+.auth-actions {
+  margin-top: 22px;
+}
+
+
+/* ============================================
+   LOGIN PREMIUM - ESTILO TIPO LA IMAGEN
+   ============================================ */
+
+/* Fondo general más limpio tipo landing */
+.auth-wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(1000px 600px at 80% -10%, #dff6e9 0%, transparent 60%),
+    radial-gradient(900px 700px at -10% 0%, #e7faf1 0%, transparent 60%),
+    var(--bg);
+  padding: 20px;
+}
+
+/* Tarjeta dividida en 2 columnas */
+.auth-card {
+  width: min(800px, 95vw);
+  border-radius: 26px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: none;
+  border: none;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+/* Lado izquierdo (verde) */
+.auth-side-left {
+  background: linear-gradient(160deg, #178353, #0f6b42);
+  color: #fff;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Curva decorativa grande */
+.auth-side-left::before {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  right: -120px;
+  top: -140px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 50%;
+}
+
+/* Texto del lado izquierdo */
+.auth-side-left h2 {
+  font-size: 30px;
+  margin-bottom: 12px;
+  font-weight: 800;
+}
+
+.auth-side-left p {
+  opacity: .9;
+  font-size: 15px;
+}
+
+/* Lado derecho (formulario) */
+.auth-side-right {
+  background: #fff;
+  padding: 50px 40px;
+}
+
+/* Logo */
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.auth-logo img {
+  width: 70px;
+  height: auto;
+}
+
+/* Títulos más modernos */
+.auth-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--green-900);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.muted {
+  text-align: center;
+  opacity: .7;
+}
+
+/* Inputs estilo glass/soft */
+.field input {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid #d9eae1;
+  padding: 14px 16px;
+  font-size: 15px;
+  transition: 0.25s all;
+}
+
+.field input:focus {
+  border-color: #18b16a;
+  box-shadow: 0 0 0 5px rgba(24,177,106,0.2);
+}
+
+/* Botón principal tipo premium */
+.btn.primary {
+  background: linear-gradient(135deg,#178353,#18b16a);
+  padding: 14px 20px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: none;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(23,131,83,0.28);
+  transition: 0.25s;
+}
+
+.btn.primary:hover {
+  background: linear-gradient(135deg,#116843,#18b16a);
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .auth-card {
+    grid-template-columns: 1fr;
+  }
+  .auth-side-left {
+    padding: 40px 30px;
+  }
+  .auth-side-right {
+    padding: 40px 30px;
+  }
+}
+
+
+
+/* ============================================
+   ESTILO PREMIUM — ELEGIR PERFIL
+   ============================================ */
+
+/* Contenedor */
+.auth-card {
+  padding: 40px 35px;
+  border-radius: 26px;
+}
+
+/* Grid más moderno (tamaño consistente) */
+#cards.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+@media (max-width: 900px) {
+  #cards.grid-3 { grid-template-columns: 1fr; }
+}
+
+/* Tarjeta */
+.dist-card {
+  padding: 24px 22px;
+  border-radius: 22px;
+  border: 1px solid var(--ring);
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.05);
+  transition: 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+
+.dist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(0,0,0,0.08);
+  border-color: #bfe9d2;
+}
+
+/* Título */
+.dist-card h4 {
+  font-size: 22px !important;
+  font-weight: 800;
+  color: #144e38 !important;
+}
+
+/* Texto */
+.dist-card .muted {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* BARRAS =================================== */
+
+.row {
+  grid-template-columns: 90px 1fr auto;
+  margin: 12px 0;
+}
+
+/* Etiqueta */
+.lbl {
+  font-weight: 700;
+  color: #1d523b;
+}
+
+/* Barra track */
+.track {
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ring);
+  background: #f2f7f4;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Valores van FUERA de la barra, así evitamos sobreposición */
+.val-inside {
+  display: none !important; /* Ocultamos valor dentro */
+}
+
+/* Número al final (porcentaje) */
+.perc {
+  background: #e7f4ed;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-weight: 800;
+  color: var(--green-900);
+  border: 1px solid #d8ece1;
+}
+
+/* Colores de cada barra */
+.row:nth-of-type(1) .fill {
+  background: linear-gradient(90deg, #1a5f44, #134c35 70%);
+}
+.row:nth-of-type(2) .fill {
+  background: linear-gradient(90deg, #22c67c, #17a763 70%);
+}
+.row:nth-of-type(3) .fill {
+  background: linear-gradient(90deg, #f4bf28, #e7ad0b 70%);
+}
+
+/* Botón dentro de card */
+.dist-card .btn.primary {
+  margin-top: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+}
+
+/* Botón aparece elegante al hacer hover */
+.dist-card:hover .btn.primary {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* EL PROPIO CARD es clickable */
+.dist-card {
+  cursor: pointer;
+}
+
+
+/* ============================================
+   ARREGLOS VISUALES — TITULO + SUBTITULO
+   ============================================ */
+
+.auth-title {
+  text-align: center;
+  font-size: 28px !important;
+  margin-bottom: 4px !important;
+}
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 26px;
+  line-height: 1.45;
+}
+
+
+/* ============================================
+   BOTÓN VOLVER — POSICIÓN Y ESTÉTICA
+   ============================================ */
+
+.return-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.return-wrap .btn.secondary {
+  padding: 12px 22px;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+
+/* Si quieres que quede alineado a la izquierda en desktop */
+@media (min-width: 900px) {
+  .return-wrap {
+    justify-content: flex-start;
+  }
+}
+
+/* Perfil: forzar layout de columna para la pantalla "Elige perfil" */
+.auth-card.profile-card {
+  display: block; /* evita el grid de la versión login */
+  padding: 36px 30px; /* opcional — ajusta el padding */
+}
+
+/* Asegurar que el contenedor de cards use grid propio */
+.profile-card #cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+/* En mobile una columna */
+@media (max-width: 900px) {
+  .profile-card #cards { grid-template-columns: 1fr; }
+}
+
+/* Hacer que el return-wrap ocupe todo el ancho bajo #cards */
+.profile-card .return-wrap {
+  margin-top: 28px;
+  display: flex;
+  justify-content: flex-start; /* o center si prefieres */
+}
+
+
+
+
+/*.  CAMBIO EN LA DONA */
+
+
+
+
+
+
+/* ================================
+   🎨 PALETA PREMIUM PARA LA DONA
+   ================================ */
+:root {
+  --consumo: #1B7F5A;    /* Verde oscuro elegante */
+  --ahorro:  #23C97A;    /* Verde esmeralda premium */
+  --serv:    #F4C542;    /* Amarillo pastel premium */
+}
+
+/* ================================
+   🟢 DONA MÁS ESTÉTICA
+   ================================ */
+.donut-wrap {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: auto;
+}
+
+.donut {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--consumo) var(--cEnd, 0deg),
+    var(--ahorro) var(--aEnd, 0deg),
+    var(--serv) var(--sEnd, 0deg),
+    #e9f3ee 0deg
+  );
+  box-shadow:
+    inset 0 0 0 42px #ffffff,
+    0 12px 28px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.donut-amount {
+  font-size: 36px;
+  font-weight: 800;
+  color: #103c2b;
+}
+
+.donut-sub {
+  font-size: 12px;
+  color: #729687;
+}
+
+/* ================================
+   🏷 LEYENDA MEJORADA
+   ================================ */
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.05);
+}
+
+.legend-consumo { background: var(--consumo); }
+.legend-ahorro  { background: var(--ahorro); }
+.legend-servicios { background: var(--serv); }
+
+.legend-label { color: #1f4d38; font-weight: 600; }
+.legend-val { color: #0e3b29; }
+
+/* ================================
+   ⚡ Quick Actions mejoradas
+   ================================ */
+.qa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  background: #f7fbf8;
+  font-weight: 800;
+  color: #1b5b40;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.qa:hover {
+  background: #eef7f1;
+  transform: translateY(-2px);
+}
+
+
+
+/* ================================
+   Barras mejoradas
+   ================================ */
+
+
+   /* ——— Evolución de ahorro mejorada ——— */
+.evo-wrap { display:grid; gap:18px }
+
+.bars {
+  display:flex;
+  align-items:flex-end;
+  gap:16px;        /* Se aumenta la separación entre meses */
+  height:160px;
+  padding-bottom:25px; /* espacio para etiquetas */
+  position:relative;
+}
+
+.bar {
+  flex:1;
+  min-width:14px;  /* antes eran 8px -> se reducían demasiado */
+  border-radius:12px 12px 4px 4px;
+  background:linear-gradient(180deg, #2DE1C2, #0E7F62 70%);
+  box-shadow:0 4px 10px rgba(25,177,105,.18);
+  position:relative;
+  transition:height .4s ease;
+}
+
+/* Mes debajo de la barra */
+.bar-label {
+  position:absolute;
+  bottom:-22px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:11px;
+  color:#557c6b;
+  white-space:nowrap;
+}
+
+/* Porcentaje de crecimiento arriba */
+.bar-growth {
+  position:absolute;
+  top:-22px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:11px;
+  font-weight:700;
+  color:#0E7F62;
+  background:#e6faf4;
+  padding:2px 6px;
+  border-radius:6px;
+}
+

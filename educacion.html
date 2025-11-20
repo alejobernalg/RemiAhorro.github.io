@@ -5,6 +5,7 @@
   <title>RemiAhorro — Educación</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
   <style>
     /* Ajustes locales mínimos (el resto vive en styles.css) */
     .lesson-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -28,28 +29,70 @@
     .badge.locked{opacity:.5}
     .faq details{border:1px solid var(--ring);border-radius:12px;background:#fff;padding:12px}
     .faq summary{cursor:pointer;font-weight:800;color:#1f513b}
-    .sim-item{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:800px){.sim-item{grid-template-columns:1fr}}
-    .sim-item input{padding:10px;border:1px solid #cfe8d9;border-radius:10px}
-    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    @media(max-width:900px){.kpi{grid-template-columns:1fr}}
-    .kpi .card{padding:16px}
-    .muted-sm{color:#6a8f7e;font-size:12px}
     .resource{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--ring);border-radius:12px;padding:10px;background:#fff}
     .modal{border:0;border-radius:18px;padding:0;max-width:min(680px,92vw)}
     .modal .head{padding:16px 18px;border-bottom:1px solid var(--ring);font-weight:800;color:#134a35}
     .modal .body{padding:18px}
     .modal .actions{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 18px}
-    .quiz-q{margin-bottom:12px}
-    .quiz-q label{display:block;margin-top:6px}
     .btn.ghost{background:transparent;border:1px solid var(--ring);color:#15563e}
+
+    /* --- SIMULADOR BONITO --- */
+    .sim-nice-box{
+      background:#f1f8f5;
+      border:1px solid #cde5d6;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow-sm);
+    }
+    .sim-nice-title{
+      font-size:18px;
+      font-weight:800;
+      color:#134c36;
+    }
+    .sim-nice-sub{
+      font-size:13px;
+      color:#567d6c;
+      margin-bottom:10px;
+    }
+    .sim-nice-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    @media(max-width:900px){.sim-nice-grid{grid-template-columns:1fr}}
+    .sim-nice-box input{
+      width:100%;
+      padding:10px;
+      border:1px solid #cfe8d9;
+      border-radius:10px;
+      font-family:Inter;
+    }
+    .sim-nice-result{
+      background:#fff;
+      border:1px solid #d2ebdc;
+      border-radius:12px;
+      padding:14px;
+      font-size:22px;
+      font-weight:800;
+      color:#15563e;
+      text-align:center;
+      box-shadow:var(--shadow-sm);
+    }
   </style>
 </head>
+
 <body>
   <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="brand"><div class="brand-badge"></div><div><h1>RemiAhorro</h1><div style="font-size:12px;color:#5a8d75">Gestiona tus remesas</div></div></div>
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>
+          <h1>RemiAhorro</h1>
+          <div style="font-size:12px;color:#5a8d75">Gestiona tus remesas</div>
+        </div>
+      </div>
+
       <nav class="nav">
         <a href="index.html" data-page="inicio">Inicio</a>
         <a href="metas.html" data-page="metas">Metas</a>
@@ -64,7 +107,7 @@
   <div class="container">
     <h2 class="section-title">Microeducación Financiera</h2>
 
-    <!-- KPIs de aprendizaje -->
+    <!-- KPIs -->
     <div class="kpi">
       <div class="card">
         <div class="muted-sm">Lecciones completadas</div>
@@ -76,59 +119,47 @@
       </div>
       <div class="card">
         <div class="muted-sm">Progreso total</div>
-        <div class="progress-lite" aria-label="Progreso total"><span id="kpiProgress"></span></div>
+        <div class="progress-lite"><span id="kpiProgress"></span></div>
       </div>
     </div>
 
-    <!-- Catálogo de lecciones -->
-    <div class="lesson-grid" id="lessonGrid">
-      <!-- generado por JS -->
-    </div>
+    <!-- Lecciones -->
+    <div class="lesson-grid" id="lessonGrid"></div>
 
     <!-- Simuladores & Hábitos -->
     <div class="two-col">
-      <!-- Simuladores -->
+
+      <!-- SIMULADORES -->
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><div style="font-weight:800;color:#15563e;font-size:20px">Simuladores</div><div class="muted">Calcula rápido y toma mejores decisiones</div></div>
+          <div>
+            <div style="font-weight:800;color:#15563e;font-size:20px">Simuladores</div>
+            <div class="muted">Calcula rápido y toma mejores decisiones</div>
+          </div>
           <button class="btn ghost" id="resetEdu">Reiniciar progreso</button>
         </div>
-        <div style="margin-top:12px;display:grid;gap:14px">
-          <div class="sim-item">
-            <div>
-              <b>1) Interés compuesto</b>
-              <div class="muted-sm">monto final = P(1 + r/n)<sup>n·t</sup></div>
-              <label>Monto inicial (P)</label>
-              <input id="icP" type="number" placeholder="Ej. 300000">
-              <label>Tasa anual (r, %)</label>
-              <input id="icR" type="number" placeholder="Ej. 10">
-              <label>Años (t)</label>
-              <input id="icT" type="number" placeholder="Ej. 2">
-              <label>Capitalizaciones/año (n)</label>
-              <input id="icN" type="number" placeholder="12">
-            </div>
-            <div>
-              <div class="pill" style="display:inline-block;margin-bottom:8px">Resultado</div>
-              <div id="icOut" class="money">$0</div>
-              <div class="muted-sm">Crecimiento total mostrado arriba</div>
-              <button class="btn primary" id="btnIC" style="margin-top:10px;width:100%">Calcular</button>
-            </div>
-          </div>
 
-          <div class="sim-item">
-            <div>
-              <b>2) ¿Cuánto necesito ahorrar al mes?</b>
-              <div class="muted-sm">para llegar a una meta en X meses</div>
-              <label>Meta (COP)</label>
-              <input id="amGoal" type="number" placeholder="Ej. 1000000">
-              <label>Meses</label>
-              <input id="amMonths" type="number" placeholder="Ej. 10">
+        <div style="margin-top:12px;display:grid;gap:18px">
+
+          <!-- Nuevo Simulador Bonito -->
+          <div class="sim-nice-box">
+            <div class="sim-nice-title">¿Cuánto necesito ahorrar al mes?</div>
+            <div class="sim-nice-sub">Ingresa una meta y el número de meses</div>
+
+            <div class="sim-nice-grid">
+              <div>
+                <label>Meta (COP)</label>
+                <input id="amGoal" type="number" placeholder="Ej. 1.000.000">
+              </div>
+
+              <div>
+                <label>Meses</label>
+                <input id="amMonths" type="number" placeholder="Ej. 10">
+              </div>
             </div>
-            <div>
-              <div class="pill" style="display:inline-block;margin-bottom:8px">Cuota sugerida</div>
-              <div id="amOut" class="money">$0</div>
-              <button class="btn primary" id="btnAM" style="margin-top:10px;width:100%">Calcular</button>
-            </div>
+
+            <div id="amOut" class="sim-nice-result" style="margin-top:16px">$0</div>
+            <button id="btnAM" class="btn primary" style="width:100%;margin-top:12px">Calcular</button>
           </div>
         </div>
       </div>
@@ -137,25 +168,22 @@
       <div class="card">
         <div style="font-weight:800;color:#15563e;font-size:20px">Hábitos recomendados</div>
         <div class="muted">Marca los que cumplas. Guardamos tu progreso.</div>
-        <div class="habits" id="habitList" style="margin-top:12px">
-          <!-- generado por JS -->
-        </div>
+        <div id="habitList" class="habits" style="margin-top:12px"></div>
       </div>
+
     </div>
 
     <!-- Insignias -->
     <h2 class="section-title">Insignias</h2>
-    <div class="badge-grid" id="badgeGrid">
-      <!-- generado por JS -->
-    </div>
+    <div id="badgeGrid" class="badge-grid"></div>
 
     <!-- Glosario & Recursos -->
     <div class="two-col" style="margin-top:16px">
       <div class="card faq">
         <div style="font-weight:800;color:#15563e;font-size:20px">Glosario rápido</div>
         <div style="display:grid;gap:10px;margin-top:10px">
-          <details><summary>Interés compuesto</summary><div class="muted">Interés que se calcula sobre el capital inicial + los intereses acumulados de periodos previos.</div></details>
-          <details><summary>Fondo de emergencia</summary><div class="muted">Ahorro reservado para imprevistos. Sugerido: 3-6 meses de gastos.</div></details>
+          <details><summary>Interés compuesto</summary><div class="muted">Interés que se calcula sobre el capital inicial + los intereses acumulados.</div></details>
+          <details><summary>Fondo de emergencia</summary><div class="muted">Ahorro reservado para imprevistos (3–6 meses).</div></details>
           <details><summary>Remesa</summary><div class="muted">Dinero que envía un familiar desde el exterior.</div></details>
         </div>
       </div>
@@ -163,11 +191,15 @@
       <div class="card">
         <div style="font-weight:800;color:#15563e;font-size:20px">Recursos útiles</div>
         <div style="display:grid;gap:10px;margin-top:10px">
-          <div class="resource"><div>📄 Guía rápida de ahorro con remesas</div><button class="btn secondary" id="dlGuia">Descargar PDF</button></div>
+          <div class="resource">
+            <div>📄 Guía rápida de ahorro con remesas</div>
+            <button class="btn secondary" id="dlGuia">Descargar PDF</button>
+          </div>
           <div class="resource"><div>🎧 Podcast: Presupuesto en 10 minutos</div><button class="btn secondary">Escuchar</button></div>
           <div class="resource"><div>📺 Video: 5 errores comunes al ahorrar</div><button class="btn secondary">Ver</button></div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -178,38 +210,41 @@
       <form id="quizForm">
         <div class="quiz-q">
           <b>1) ¿Qué conviene hacer primero al recibir tu ingreso?</b>
-          <label><input type="radio" name="q1" value="a"> Pagar todo y ver si sobra</label>
-          <label><input type="radio" name="q1" value="b"> Ahorrar un % fijo antes de gastar</label>
-          <label><input type="radio" name="q1" value="c"> Comprar antojos</label>
+          <label><input type="radio" name="q1" value="a"> Pagar todo</label>
+          <label><input type="radio" name="q1" value="b"> Ahorrar primero</label>
+          <label><input type="radio" name="q1" value="c"> Gastar</label>
         </div>
+
         <div class="quiz-q">
-          <b>2) ¿Qué fondo te ayuda con imprevistos?</b>
+          <b>2) ¿Qué fondo es para imprevistos?</b>
           <label><input type="radio" name="q2" value="a"> Fondo de emergencia</label>
-          <label><input type="radio" name="q2" value="b"> Fondo de diversión</label>
-          <label><input type="radio" name="q2" value="c"> Fondo de vacaciones</label>
+          <label><input type="radio" name="q2" value="b"> Fondo diversión</label>
         </div>
+
         <div class="quiz-q">
-          <b>3) ¿Qué describe el interés compuesto?</b>
-          <label><input type="radio" name="q3" value="a"> Solo sobre capital</label>
-          <label><input type="radio" name="q3" value="b"> Sobre capital + intereses acumulados</label>
-          <label><input type="radio" name="q3" value="c"> Un impuesto</label>
+          <b>3) ¿Qué es interés compuesto?</b>
+          <label><input type="radio" name="q3" value="a"> Solo capital</label>
+          <label><input type="radio" name="q3" value="b"> Capital + intereses acumulados</label>
         </div>
       </form>
+
       <div id="quizFeedback" class="muted" style="margin-top:8px"></div>
     </div>
+
     <div class="actions">
       <button class="btn secondary" id="quizClose">Cerrar</button>
       <button class="btn primary" id="quizSubmit">Enviar</button>
     </div>
   </dialog>
 
-  <!-- MODAL Lección (video demo) -->
+  <!-- MODAL Video -->
   <dialog id="videoModal" class="modal">
     <div class="head" id="videoTitle">Lección</div>
     <div class="body">
-      <div class="muted">Demo: aquí iría tu iframe/video. Por ahora mostramos un bloque simulado.</div>
+      <div class="muted">Aquí iría tu video real.</div>
       <div style="height:260px;border:1px dashed var(--ring);border-radius:12px;display:grid;place-items:center;margin-top:10px">🎥 Video</div>
     </div>
+
     <div class="actions">
       <button class="btn secondary" id="videoClose">Cerrar</button>
       <button class="btn primary" id="videoComplete">Marcar como visto</button>
